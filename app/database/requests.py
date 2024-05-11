@@ -1,13 +1,13 @@
 import sqlite3 as sql
 
-objects = {
+objects_map = {
     "rus": "Русский",
     "literature": "Литература",
     "math": "Математика",
     "geometry": "Геометрия",
     "informatics": "Информатика",
     "history": "История",
-    "history_spb": "История и культура СПБ",
+    "history_spb": "История СПБ",
     "social": "Обществознание",
     "geography": "География",
     "biology": "Биология",
@@ -35,11 +35,10 @@ def create() -> None:
         cur.execute(query)
 
         res = ["CREATE TABLE IF NOT EXISTS classes (name TEXT NOT NULL PRIMARY KEY"]
-        for i in objects:
+        for i in objects_map:
             res.append(f", {i} TEXT")
         res.append(")")
         query = "".join(res)
-        print(query)
         cur.execute(query)
         db.commit()
 
@@ -60,8 +59,9 @@ def add_user(user_id: int, user_class: str) -> None:
             query = """
                     UPDATE users
                     SET class = ?
+                    WHERE id = ?
                     """
-            cur.execute(query, [user_class])
+            cur.execute(query, [user_class, user_id])
         else:
             query = """
                     INSERT INTO users(id, class) VALUES(?, ?)
@@ -99,11 +99,27 @@ def get_hw(user_id: int, object_name: str) -> str:
         """
         cur.execute(query, [user_id])
         user_class = "".join(cur.fetchone())
-        print(object_name)
         cur.execute(f'SELECT {object_name} FROM classes WHERE name = "{user_class}"')
         db.commit()
         try:
-            hw = "".join(cur.fetchone())
+            hwg = "".join(cur.fetchone())
         except TypeError:
-            hw = "Домашнее задание не найдено"
-        return hw
+            hwg = "Домашнее задание не найдено"
+        return hwg
+
+
+def add_hw(user_id: int, object_name: str, homework: str) -> None:
+    """
+    Отправляет домашнее задание
+    """
+    with sql.connect("db.sqlite3") as db:
+        cur = db.cursor()
+        query = """
+        SELECT class FROM users WHERE id = ?
+        """
+        cur.execute(query, [user_id])
+        user_class = "".join(cur.fetchone())
+        cur.execute(
+            f'UPDATE classes SET "{object_name}" = "{homework}" WHERE name = "{user_class}"'
+        )
+        db.commit()

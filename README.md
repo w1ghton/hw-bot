@@ -5,26 +5,26 @@
 <hr>
 
 1. Cloning the repository
-
-```bash
-git clone https://github.com/w1ghton/hw-bot.git
-```
+    
+    ```bash
+    git clone https://github.com/w1ghton/hw-bot.git
+    ```
 
 2. Create a virtual environment 
-
-```bash
-python -m venv venv
-```
+    
+    ```bash
+    python -m venv venv
+    ```
 
 3. And activate it:
-- Windows: `venv\Scripts\activate.bat`
-- Linux / MacOS: `source venv/bin/activate`
+   - Windows: `venv\Scripts\activate.bat`
+   - Linux / MacOS: `source venv/bin/activate`
 
 4. Install the necessary modules 
-
-```bash
-pip install -r requirements.txt
-```
+    
+    ```bash
+    pip install -r requirements.txt
+    ```
 
 5. Create a `.env` file and write `TOKEN=12345678:AaBbCcDdEeFfGgHh`. Token can be taken from 
 [BotFather](https://t.me/BotFather).

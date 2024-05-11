@@ -8,10 +8,16 @@ import app.keyboards as kb
 
 
 router = Router()
+# TODO: Избавиться от глобальной переменной
+global obj_call
 
 
 class GetClass(StatesGroup):
     user_class = State()
+
+
+class GetHomeWork(StatesGroup):
+    hw = State()
 
 
 @router.message(CommandStart())
@@ -64,12 +70,22 @@ async def cancel(callback: CallbackQuery) -> None:
 
 
 @router.callback_query(F.data == "add_hw")
-async def add_hw(callback: CallbackQuery) -> None:
+async def add_hw_first(callback: CallbackQuery, state: FSMContext) -> None:
     """
     Добавить домашнее задание
     """
-    await callback.answer(text="Функция в разражопке!🤯", show_alert=True)
-    await cancel(callback)
+    await state.set_state(GetHomeWork.hw)
+    await callback.answer()
+    await callback.message.answer("Пришлите домашнее задание одним сообщением: ")
+
+
+@router.message(GetHomeWork.hw)
+async def add_hw_second(message: Message, state: FSMContext) -> None:
+    hw = message.text
+    await state.clear()
+    add_hw(message.from_user.id, obj_call, hw)
+    await message.reply("Домашнее задание загружено!")
+    await objects(message)
 
 
 @router.callback_query(F.data)
@@ -78,8 +94,11 @@ async def object_manage(callback: CallbackQuery) -> None:
     Показывает домашнее задание с возможностью добавления
     """
     await callback.answer()
+    global obj_call
+    obj_call = callback.data
+    print(callback.message.chat.id)
     await callback.message.edit_text(
-        get_hw(callback.from_user.id, callback.data), reply_markup=kb.kb_object
+        get_hw(callback.message.chat.id, obj_call), reply_markup=kb.kb_object
     )
 
 
