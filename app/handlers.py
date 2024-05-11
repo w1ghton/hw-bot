@@ -8,8 +8,8 @@ import app.keyboards as kb
 
 
 router = Router()
-# TODO: Избавиться от глобальной переменной
 global obj_call
+obj_call = dict()
 
 
 class GetClass(StatesGroup):
@@ -47,7 +47,7 @@ async def second(message: Message, state: FSMContext) -> None:
         add_user(message.from_user.id, user_class)
         add_class(user_class)
         await state.clear()
-        await objects(message)
+        await warning(message)
 
 
 @router.message(Command("objects"))
@@ -83,7 +83,7 @@ async def add_hw_first(callback: CallbackQuery, state: FSMContext) -> None:
 async def add_hw_second(message: Message, state: FSMContext) -> None:
     hw = message.text
     await state.clear()
-    add_hw(message.from_user.id, obj_call, hw)
+    add_hw(message.from_user.id, obj_call[message.from_user.id], hw)
     await message.reply("Домашнее задание загружено!")
     await objects(message)
 
@@ -95,10 +95,11 @@ async def object_manage(callback: CallbackQuery) -> None:
     """
     await callback.answer()
     global obj_call
-    obj_call = callback.data
+    obj_call.update({callback.message.chat.id: callback.data})
     print(callback.message.chat.id)
     await callback.message.edit_text(
-        get_hw(callback.message.chat.id, obj_call), reply_markup=kb.kb_object
+        get_hw(callback.message.chat.id, obj_call[callback.message.chat.id]),
+        reply_markup=kb.kb_object,
     )
 
 
@@ -112,3 +113,15 @@ async def get_help(message: Message) -> None:
         'находится в <a href="https://github.com/w1ghton/hw-bot.git">GitHub репозитории</a>.\nДля связи используйте '
         "команду /contact."
     )
+
+
+@router.message(Command("warning"))
+async def warning(message: Message):
+    await message.answer(
+        "Из-за того, что бот находится в разработке, от не может принимать файлы и изображения, "
+        "только текст (и всякие смайлики 🤯🤠🤮)"
+    )
+    await message.answer_sticker(
+        "CAACAgIAAxkBAAEFWBRmP8PR-jMDPavWlkzKIWMc90GIqQACw0MAAoPlOEgAAevDj6k329Q1BA"
+    )
+    await objects(message)
