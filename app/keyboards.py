@@ -1,6 +1,6 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from app.database.requests import objects_map
+from app.static.text import *
 
 
 async def kb_objects() -> InlineKeyboardMarkup:
@@ -8,8 +8,8 @@ async def kb_objects() -> InlineKeyboardMarkup:
     Создает из всех предметов кнопки
     """
     keyboard = InlineKeyboardBuilder()
-    for obj in objects_map:
-        keyboard.add(InlineKeyboardButton(text=objects_map[obj], callback_data=obj))
+    for obj in OBJECTS:
+        keyboard.add(InlineKeyboardButton(text=OBJECTS[obj], callback_data=obj))
     return keyboard.adjust(2).as_markup()
 
 

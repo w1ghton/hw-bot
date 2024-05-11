@@ -1,23 +1,5 @@
 import sqlite3 as sql
-
-objects_map = {
-    "rus": "Русский",
-    "literature": "Литература",
-    "math": "Математика",
-    "geometry": "Геометрия",
-    "informatics": "Информатика",
-    "history": "История",
-    "history_spb": "История СПБ",
-    "social": "Обществознание",
-    "geography": "География",
-    "biology": "Биология",
-    "physics": "Физика",
-    "chemistry": "Химия",
-    "obj": "ОБЖ",
-    "technology": "Технология",
-    "eng": "Английский",
-    "foreign_language": "Вт. иностранный",
-}
+from app.static.text import *
 
 
 def create() -> None:
@@ -35,7 +17,7 @@ def create() -> None:
         cur.execute(query)
 
         res = ["CREATE TABLE IF NOT EXISTS classes (name TEXT NOT NULL PRIMARY KEY"]
-        for i in objects_map:
+        for i in OBJECTS:
             res.append(f", {i} TEXT")
         res.append(")")
         query = "".join(res)

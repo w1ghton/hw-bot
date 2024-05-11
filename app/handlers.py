@@ -108,7 +108,7 @@ async def get_help(message: Message) -> None:
     Информация о боте
     """
     await message.answer(
-        "Исходный код бота распространяется по лицензии [MIT](https://opensource.org/license/mit) и находится в "
-        "[GitHub репозитории](https://github.com/w1ghton/hw-bot.git)\.\nДля связи используйте команду /contact",
-        parse_mode="MarkdownV2",
+        'Исходный код бота распространяется по лицензии <a href="https://opensource.org/license/mit">MIT</a> и '
+        'находится в <a href="https://github.com/w1ghton/hw-bot.git">GitHub репозитории</a>.\nДля связи используйте '
+        "команду /contact."
     )

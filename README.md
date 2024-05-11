@@ -1,7 +1,10 @@
 <h1 align="center">Homework Exchanger</h1>
+
 <hr>
+
 <h3 align="center">Homework Exchanger will help simplify the search and exchange of homework through a Telegram bot.</h3>
 <h2>Installation</h2>
+
 <hr>
 
 1. Cloning the repository
@@ -12,9 +15,8 @@
 
 2. Create a virtual environment 
     
-    ```bash
-    python -m venv venv
-    ```
+   - Windows: `python -m venv venv`
+   - Linux / MacOS: `python3 -m venv venv`
 
 3. And activate it:
    - Windows: `venv\Scripts\activate.bat`
@@ -30,6 +32,8 @@
 [BotFather](https://t.me/BotFather).
 
 <h2>Launch</h2>
-```bash
-python main.py
-```
+
+<hr>
+
+- Windows: `python main.py`
+- Linux / MacOS: `python3 main.py`

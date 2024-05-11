@@ -1,0 +1,18 @@
+OBJECTS = {
+    "rus": "Русский",
+    "literature": "Литература",
+    "math": "Математика",
+    "geometry": "Геометрия",
+    "informatics": "Информатика",
+    "history": "История",
+    "history_spb": "История СПБ",
+    "social": "Обществознание",
+    "geography": "География",
+    "biology": "Биология",
+    "physics": "Физика",
+    "chemistry": "Химия",
+    "obj": "ОБЖ",
+    "technology": "Технология",
+    "eng": "Английский",
+    "foreign_language": "Вт. иностранный",
+}
