@@ -64,9 +64,12 @@ async def cancel(callback: CallbackQuery) -> None:
     Возврат в меню предметов
     """
     await callback.answer()
-    await callback.message.edit_text(
-        text="Выберите предмет: ", reply_markup=await kb.kb_objects()
-    )
+    try:
+        await callback.message.edit_text(
+            text="Выберите предмет: ", reply_markup=await kb.kb_objects()
+        )
+    except:
+        await callback.message.delete()
 
 
 @router.callback_query(F.data == "add_hw")
@@ -79,8 +82,18 @@ async def add_hw_first(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.message.answer("Пришлите домашнее задание одним сообщением: ")
 
 
+@router.message(F.photo, GetHomeWork.hw)
+async def add_photo_second(message: Message, state: FSMContext) -> None:
+    photo = message.photo[-1]
+    hw = photo.file_id
+    await state.clear()
+    add_hw(message.from_user.id, obj_call[message.from_user.id], hw)
+    await message.reply("Домашнее задание загружено!")
+    await objects(message)
+
+
 @router.message(GetHomeWork.hw)
-async def add_hw_second(message: Message, state: FSMContext) -> None:
+async def add_text_second(message: Message, state: FSMContext) -> None:
     hw = message.text
     await state.clear()
     add_hw(message.from_user.id, obj_call[message.from_user.id], hw)
@@ -96,11 +109,17 @@ async def object_manage(callback: CallbackQuery) -> None:
     await callback.answer()
     global obj_call
     obj_call.update({callback.message.chat.id: callback.data})
-    print(callback.message.chat.id)
-    await callback.message.edit_text(
-        get_hw(callback.message.chat.id, obj_call[callback.message.chat.id]),
-        reply_markup=kb.kb_object,
-    )
+    print(get_hw(callback.message.chat.id, obj_call[callback.message.chat.id]))
+    try:
+        await callback.message.answer_photo(
+            get_hw(callback.message.chat.id, obj_call[callback.message.chat.id]),
+            reply_markup=kb.kb_object,
+        )
+    except:
+        await callback.message.edit_text(
+            get_hw(callback.message.chat.id, obj_call[callback.message.chat.id]),
+            reply_markup=kb.kb_object,
+        )
 
 
 @router.message(Command("info"))
