@@ -82,10 +82,30 @@ async def add_hw_first(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.message.answer("Пришлите домашнее задание одним сообщением: ")
 
 
+@router.message(F.document, GetHomeWork.hw)
+async def add_document_second(message: Message, state: FSMContext) -> None:
+    document = message.document
+    hw = {"data": document.file_id, "caption": message.caption}
+    await state.clear()
+    add_hw(message.from_user.id, obj_call[message.from_user.id], hw)
+    await message.reply("Домашнее задание загружено!")
+    await objects(message)
+
+
+@router.message(F.media_group, GetHomeWork.hw)
+async def add_photos_second(message: Message, state: FSMContext) -> None:
+    photos = message.media_group_id
+    hw = {"data": photos, "caption": message.caption}
+    await state.clear()
+    add_hw(message.from_user.id, obj_call[message.from_user.id], hw)
+    await message.reply("Домашнее задание загружено!")
+    await objects(message)
+
+
 @router.message(F.photo, GetHomeWork.hw)
 async def add_photo_second(message: Message, state: FSMContext) -> None:
     photo = message.photo[-1]
-    hw = photo.file_id
+    hw = {"data": photo.file_id, "caption": message.caption}
     await state.clear()
     add_hw(message.from_user.id, obj_call[message.from_user.id], hw)
     await message.reply("Домашнее задание загружено!")
@@ -94,7 +114,7 @@ async def add_photo_second(message: Message, state: FSMContext) -> None:
 
 @router.message(GetHomeWork.hw)
 async def add_text_second(message: Message, state: FSMContext) -> None:
-    hw = message.text
+    hw = {"data": message.text}
     await state.clear()
     add_hw(message.from_user.id, obj_call[message.from_user.id], hw)
     await message.reply("Домашнее задание загружено!")
@@ -109,17 +129,40 @@ async def object_manage(callback: CallbackQuery) -> None:
     await callback.answer()
     global obj_call
     obj_call.update({callback.message.chat.id: callback.data})
-    print(get_hw(callback.message.chat.id, obj_call[callback.message.chat.id]))
+    hw = get_hw(callback.message.chat.id, obj_call[callback.message.chat.id])
     try:
-        await callback.message.answer_photo(
-            get_hw(callback.message.chat.id, obj_call[callback.message.chat.id]),
+        await callback.message.answer_document(
+            hw["data"],
+            reply_markup=kb.kb_object,
+            caption=hw["caption"],
+        )
+    except:
+        pass
+
+    try:
+        await callback.message.answer_media_group(
+            hw["data"],
+            caption=hw["caption"],
             reply_markup=kb.kb_object,
         )
     except:
-        await callback.message.edit_text(
-            get_hw(callback.message.chat.id, obj_call[callback.message.chat.id]),
+        pass
+
+    try:
+        await callback.message.answer_photo(
+            hw["data"],
+            caption=hw["caption"],
             reply_markup=kb.kb_object,
         )
+    except:
+        pass
+    try:
+        await callback.message.edit_text(
+            hw["data"],
+            reply_markup=kb.kb_object,
+        )
+    except:
+        pass
 
 
 @router.message(Command("info"))

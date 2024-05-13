@@ -1,5 +1,6 @@
 import sqlite3 as sql
 from app.static.text import *
+import ast
 
 
 def create() -> None:
@@ -70,7 +71,7 @@ def add_class(user_class: str) -> None:
         db.commit()
 
 
-def get_hw(user_id: int, object_name: str) -> str:
+def get_hw(user_id: int, object_name: str) -> dict:
     """
     Получает домашнее задание
     """
@@ -86,11 +87,11 @@ def get_hw(user_id: int, object_name: str) -> str:
         try:
             hwg = "".join(cur.fetchone())
         except TypeError:
-            hwg = "Домашнее задание не найдено"
-        return hwg
+            hwg = "{'data': 'Домашнее задание не найдено'}"
+        return ast.literal_eval(hwg)
 
 
-def add_hw(user_id: int, object_name: str, homework: str) -> None:
+def add_hw(user_id: int, object_name: str, homework: dict) -> None:
     """
     Отправляет домашнее задание
     """
