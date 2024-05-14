@@ -87,7 +87,7 @@ def get_hw(user_id: int, object_name: str) -> dict:
         try:
             hwg = "".join(cur.fetchone())
         except TypeError:
-            hwg = "{'data': 'Домашнее задание не найдено'}"
+            hwg = "{'text': 'Домашнее задание не найдено'}"
         return ast.literal_eval(hwg)
 
 

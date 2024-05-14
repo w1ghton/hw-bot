@@ -8,8 +8,8 @@ import app.keyboards as kb
 
 
 router = Router()
-global obj_call
-obj_call = dict()
+global cache
+cache = dict()
 
 
 class GetClass(StatesGroup):
@@ -85,9 +85,9 @@ async def add_hw_first(callback: CallbackQuery, state: FSMContext) -> None:
 @router.message(F.document, GetHomeWork.hw)
 async def add_document_second(message: Message, state: FSMContext) -> None:
     document = message.document
-    hw = {"data": document.file_id, "caption": message.caption}
+    hw = {"document": document.file_id, "caption": message.caption}
     await state.clear()
-    add_hw(message.from_user.id, obj_call[message.from_user.id], hw)
+    add_hw(message.from_user.id, cache[message.from_user.id], hw)
     await message.reply("Домашнее задание загружено!")
     await objects(message)
 
@@ -95,9 +95,9 @@ async def add_document_second(message: Message, state: FSMContext) -> None:
 @router.message(F.photo, GetHomeWork.hw)
 async def add_photo_second(message: Message, state: FSMContext) -> None:
     photo = message.photo[-1]
-    hw = {"data": photo.file_id, "caption": message.caption}
+    hw = {"photo": photo.file_id, "caption": message.caption}
     await state.clear()
-    add_hw(message.from_user.id, obj_call[message.from_user.id], hw)
+    add_hw(message.from_user.id, cache[message.from_user.id], hw)
     await message.reply("Домашнее задание загружено!")
     await objects(message)
 
@@ -111,9 +111,9 @@ async def add_text_second(message: Message, state: FSMContext) -> None:
         )
         await objects(message)
         return
-    hw = {"data": message.text}
+    hw = {"text": message.text}
     await state.clear()
-    add_hw(message.from_user.id, obj_call[message.from_user.id], hw)
+    add_hw(message.from_user.id, cache[message.from_user.id], hw)
     await message.reply("Домашнее задание загружено!")
     await objects(message)
 
@@ -124,37 +124,31 @@ async def object_manage(callback: CallbackQuery) -> None:
     Показывает домашнее задание с возможностью добавления
     """
     await callback.answer()
-    global obj_call
-    obj_call.update({callback.message.chat.id: callback.data})
-    hw = get_hw(callback.message.chat.id, obj_call[callback.message.chat.id])
-    try:
+    global cache
+    cache.update({callback.message.chat.id: callback.data})
+    hw = get_hw(callback.message.chat.id, cache[callback.message.chat.id])
+    if "document" in hw:
         await callback.message.answer_document(
             hw["data"],
             reply_markup=kb.kb_object,
             caption=hw["caption"],
         )
         callback.message.delete()
-        return
-    except:
-        pass
-
-    try:
+    elif "photo" in hw:
         await callback.message.answer_photo(
-            hw["data"],
+            hw["photo"],
             caption=hw["caption"],
             reply_markup=kb.kb_object,
         )
         callback.message.delete()
-        return
-    except:
-        pass
-    try:
+    elif "text" in hw:
         await callback.message.edit_text(
-            hw["data"],
+            hw["text"],
             reply_markup=kb.kb_object,
         )
-    except:
-        pass
+        callback.message.delete()
+    else:
+        await callback.answer("Произошли технические шоколадки(")
 
 
 @router.message(Command("info"))
@@ -164,6 +158,5 @@ async def get_help(message: Message) -> None:
     """
     await message.answer(
         'Исходный код бота распространяется по лицензии <a href="https://opensource.org/license/mit">MIT</a> и '
-        'находится в <a href="https://github.com/w1ghton/hw-bot.git">GitHub репозитории</a>.\nДля связи используйте '
-        "команду /contact."
+        'находится в <a href="https://github.com/w1ghton/hw-bot.git">GitHub репозитории</a>.'
     )
