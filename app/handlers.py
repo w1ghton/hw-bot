@@ -1,5 +1,5 @@
 from aiogram.filters import CommandStart, Command
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, InputMediaPhoto
 from aiogram import Router, F
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
@@ -47,7 +47,7 @@ async def second(message: Message, state: FSMContext) -> None:
         add_user(message.from_user.id, user_class)
         add_class(user_class)
         await state.clear()
-        await warning(message)
+        await objects(message)
 
 
 @router.message(Command("objects"))
@@ -92,16 +92,6 @@ async def add_document_second(message: Message, state: FSMContext) -> None:
     await objects(message)
 
 
-@router.message(F.media_group, GetHomeWork.hw)
-async def add_photos_second(message: Message, state: FSMContext) -> None:
-    photos = message.media_group_id
-    hw = {"data": photos, "caption": message.caption}
-    await state.clear()
-    add_hw(message.from_user.id, obj_call[message.from_user.id], hw)
-    await message.reply("Домашнее задание загружено!")
-    await objects(message)
-
-
 @router.message(F.photo, GetHomeWork.hw)
 async def add_photo_second(message: Message, state: FSMContext) -> None:
     photo = message.photo[-1]
@@ -114,6 +104,13 @@ async def add_photo_second(message: Message, state: FSMContext) -> None:
 
 @router.message(GetHomeWork.hw)
 async def add_text_second(message: Message, state: FSMContext) -> None:
+    if not message.text:
+        await message.reply("Неподдерживаемый тип данных!")
+        await message.answer_sticker(
+            "CAACAgIAAxkBAAEDCHJlr_o4QFkoMNA9GqbNcxjX-KPK2gAC2x8AAp__QEgrNgjn50SsZzQE"
+        )
+        await objects(message)
+        return
     hw = {"data": message.text}
     await state.clear()
     add_hw(message.from_user.id, obj_call[message.from_user.id], hw)
@@ -136,15 +133,8 @@ async def object_manage(callback: CallbackQuery) -> None:
             reply_markup=kb.kb_object,
             caption=hw["caption"],
         )
-    except:
-        pass
-
-    try:
-        await callback.message.answer_media_group(
-            hw["data"],
-            caption=hw["caption"],
-            reply_markup=kb.kb_object,
-        )
+        callback.message.delete()
+        return
     except:
         pass
 
@@ -154,6 +144,8 @@ async def object_manage(callback: CallbackQuery) -> None:
             caption=hw["caption"],
             reply_markup=kb.kb_object,
         )
+        callback.message.delete()
+        return
     except:
         pass
     try:
@@ -175,15 +167,3 @@ async def get_help(message: Message) -> None:
         'находится в <a href="https://github.com/w1ghton/hw-bot.git">GitHub репозитории</a>.\nДля связи используйте '
         "команду /contact."
     )
-
-
-@router.message(Command("warning"))
-async def warning(message: Message):
-    await message.answer(
-        "Из-за того, что бот находится в разработке, от не может принимать файлы и изображения, "
-        "только текст (и всякие смайлики 🤯🤠🤮)"
-    )
-    await message.answer_sticker(
-        "CAACAgIAAxkBAAEFWBRmP8PR-jMDPavWlkzKIWMc90GIqQACw0MAAoPlOEgAAevDj6k329Q1BA"
-    )
-    await objects(message)
